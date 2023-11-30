@@ -1,6 +1,4 @@
-use crate::utils::coords::Coordinates;
 use crate::utils::parser;
-use std::collections::{HashMap, HashSet};
 use std::time::Instant;
 
 #[derive(Debug)]
@@ -21,7 +19,7 @@ pub fn solve(input: &str) {
 }
 
 fn lights_on(input: &str) -> usize {
-    let mut on_lights = HashSet::<Coordinates<i32>>::new();
+    let mut on_lights: Vec<Vec<bool>> = vec![vec![false; 1000]; 1000];
     for line in input.lines() {
         let instruction = {
             if line.starts_with("turn on") {
@@ -40,48 +38,47 @@ fn lights_on(input: &str) -> usize {
         );
     }
 
-    on_lights.len()
+    on_lights
+        .concat()
+        .into_iter()
+        .filter(|x| *x)
+        .collect::<Vec<bool>>()
+        .len()
 }
 
 fn apply_lights_instructions(
     instruction: Instruction,
     corners: Vec<i32>,
-    mut lights: HashSet<Coordinates<i32>>,
-) -> HashSet<Coordinates<i32>> {
+    mut lights: Vec<Vec<bool>>,
+) -> Vec<Vec<bool>> {
     match instruction {
         Instruction::On => {
             for i in corners[0]..corners[2] + 1 {
                 for j in corners[1]..corners[3] + 1 {
-                    lights.insert(Coordinates::new(i, j));
+                    lights[i as usize][j as usize] = true;
                 }
             }
         }
         Instruction::Off => {
             for i in corners[0]..corners[2] + 1 {
                 for j in corners[1]..corners[3] + 1 {
-                    lights.remove(&Coordinates::new(i, j));
+                    lights[i as usize][j as usize] = false;
                 }
             }
         }
         Instruction::Toggle => {
             for i in corners[0]..corners[2] + 1 {
                 for j in corners[1]..corners[3] + 1 {
-                    let coord = Coordinates::new(i, j);
-                    if lights.contains(&coord) {
-                        lights.remove(&coord);
-                    } else {
-                        lights.insert(coord);
-                    }
+                    lights[i as usize][j as usize] = !lights[i as usize][j as usize];
                 }
             }
         }
     }
-
     lights
 }
 
-fn lights_gradual(input: &str) -> i32 {
-    let mut on_lights = HashMap::<Coordinates<i32>, i32>::new();
+fn lights_gradual(input: &str) -> u32 {
+    let mut on_lights: Vec<Vec<u32>> = vec![vec![0; 1000]; 1000];
     for line in input.lines() {
         let instruction = {
             if line.starts_with("turn on") {
@@ -100,34 +97,26 @@ fn lights_gradual(input: &str) -> i32 {
         );
     }
 
-    on_lights.values().sum()
+    on_lights.concat().into_iter().sum::<u32>()
 }
 fn apply_gradual_lights_instructions(
     instruction: Instruction,
     corners: Vec<i32>,
-    mut lights: HashMap<Coordinates<i32>, i32>,
-) -> HashMap<Coordinates<i32>, i32> {
+    mut lights: Vec<Vec<u32>>,
+) -> Vec<Vec<u32>> {
     match instruction {
         Instruction::On => {
             for i in corners[0]..corners[2] + 1 {
                 for j in corners[1]..corners[3] + 1 {
-                    let coord = Coordinates::new(i, j);
-                    if lights.contains_key(&coord) {
-                        lights.insert(coord, lights.get(&coord).unwrap() + 1);
-                    } else {
-                        lights.insert(coord, 1);
-                    }
+                    lights[i as usize][j as usize] += 1;
                 }
             }
         }
         Instruction::Off => {
             for i in corners[0]..corners[2] + 1 {
                 for j in corners[1]..corners[3] + 1 {
-                    let coord = Coordinates::new(i, j);
-                    if lights.contains_key(&coord) && lights.get(&coord).unwrap() > &0 {
-                        lights.insert(coord, lights.get(&coord).unwrap() - 1);
-                    } else {
-                        lights.remove(&coord);
+                    if lights[i as usize][j as usize] != 0 {
+                        lights[i as usize][j as usize] -= 1;
                     }
                 }
             }
@@ -135,12 +124,7 @@ fn apply_gradual_lights_instructions(
         Instruction::Toggle => {
             for i in corners[0]..corners[2] + 1 {
                 for j in corners[1]..corners[3] + 1 {
-                    let coord = Coordinates::new(i, j);
-                    if lights.contains_key(&coord) {
-                        lights.insert(coord, lights.get(&coord).unwrap() + 2);
-                    } else {
-                        lights.insert(coord, 2);
-                    }
+                    lights[i as usize][j as usize] += 2;
                 }
             }
         }

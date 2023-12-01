@@ -1,4 +1,5 @@
 use regex::Regex;
+use rstest::rstest;
 use std::time::Instant;
 
 pub fn solve(input: &str) {
@@ -18,17 +19,15 @@ pub fn solve(input: &str) {
 }
 
 fn get_coordinates(input: &str) -> i32 {
-    let digits: Vec<i32> = Regex::new(r"\d")
-        .unwrap()
-        .find_iter(input)
-        .map(|digit| digit.as_str().parse::<i32>().unwrap())
+    let digits: Vec<i32> = input
+        .chars()
+        .filter(|n| n.is_digit(10))
+        .map(|n| n.to_string().parse::<i32>().unwrap())
         .collect();
 
-    if digits.len() == 1 {
-        digits[0] * 10 + digits[0]
-    } else {
-        digits[0] * 10 + digits[digits.len() - 1]
-    }
+    format!("{}{}", digits[0], digits[digits.len() - 1])
+        .parse::<i32>()
+        .unwrap()
 }
 
 fn get_spelled_coordinates(input: &str) -> i32 {
@@ -48,10 +47,9 @@ fn get_spelled_coordinates(input: &str) -> i32 {
         i += 1;
     }
 
-    let digit1 = digits[0];
-    let digit2 = digits[digits.len() - 1];
-
-    digit1 * 10 + digit2
+    format!("{}{}", digits[0], digits[digits.len() - 1])
+        .parse::<i32>()
+        .unwrap()
 }
 
 fn transform_spelling_to_int(spelling: &str) -> i32 {
@@ -78,10 +76,11 @@ mod tests {
         assert_eq!(77, get_coordinates("treb7uchet"));
     }
 
-    #[test]
-    fn test_get_coords_two_numbers() {
-        assert_eq!(12, get_coordinates("1asdf2"));
-        assert_eq!(24, get_coordinates("24"));
+    #[rstest]
+    #[case(12, "1asdf2")]
+    #[case(24, "24")]
+    fn test_get_coords_two_numbers(#[case] expected: i32, #[case] input: &str) {
+        assert_eq!(expected, get_coordinates(input));
     }
 
     #[test]
@@ -98,16 +97,17 @@ treb7uchet";
         assert_eq!(142, input.lines().map(get_coordinates).sum());
     }
 
-    #[test]
-    fn test_get_spelled_coords_multiple_numbers() {
-        assert_eq!(15, get_spelled_coordinates("abcone2fivexyz"));
-        assert_eq!(29, get_spelled_coordinates("two1nine"));
-        assert_eq!(83, get_spelled_coordinates("eightwothree"));
-        assert_eq!(64, get_spelled_coordinates("xsixne3four"));
-        assert_eq!(77, get_spelled_coordinates("seven"));
-        assert_eq!(42, get_spelled_coordinates("4nineeightsevenw2"));
-        assert_eq!(42, get_spelled_coordinates("ni4n2e"));
-        assert_eq!(29, get_spelled_coordinates("twosevenine"));
+    #[rstest]
+    #[case(15, "abcone2fivexyz")]
+    #[case(29, "two1nine")]
+    #[case(83, "eightwothree")]
+    #[case(64, "xsixne3four")]
+    #[case(77, "seven")]
+    #[case(42, "4nineeightsevenw2")]
+    #[case(42, "ni4n2e")]
+    #[case(29, "twosevenine")]
+    fn test_get_spelled_coords_multiple_numbers(#[case] expected: i32, #[case] input: &str) {
+        assert_eq!(expected, get_spelled_coordinates(input));
     }
 
     #[test]

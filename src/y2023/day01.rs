@@ -1,4 +1,3 @@
-use regex::Regex;
 use rstest::rstest;
 use std::time::Instant;
 
@@ -19,38 +18,77 @@ pub fn solve(input: &str) {
 }
 
 fn get_coordinates(input: &str) -> i32 {
-    let digits: Vec<i32> = input
-        .chars()
-        .filter(|n| n.is_digit(10))
-        .map(|n| n.to_string().parse::<i32>().unwrap())
-        .collect();
+    let mut digits = input.chars().filter_map(|n| n.to_digit(10));
 
-    format!("{}{}", digits[0], digits[digits.len() - 1])
-        .parse::<i32>()
-        .unwrap()
+    let first = digits.next().expect("Should be a number");
+
+    match digits.last() {
+        Some(last) => format!("{first}{last}"),
+        None => format!("{first}{first}"),
+    }
+    .parse::<i32>()
+    .expect("Should be a number")
 }
 
 fn get_spelled_coordinates(input: &str) -> i32 {
-    let pattern = Regex::new(r"\d|one|two|three|four|five|six|seven|eight|nine").unwrap();
-    let mut i = 0;
-    let mut digits = vec![];
+    let mut digits = (0..input.len()).filter_map(|index| {
+        let reduced_input = &input[index..];
+        let result = if reduced_input.starts_with("one") {
+            '1'
+        } else if reduced_input.starts_with("two") {
+            '2'
+        } else if reduced_input.starts_with("three") {
+            '3'
+        } else if reduced_input.starts_with("four") {
+            '4'
+        } else if reduced_input.starts_with("five") {
+            '5'
+        } else if reduced_input.starts_with("six") {
+            '6'
+        } else if reduced_input.starts_with("seven") {
+            '7'
+        } else if reduced_input.starts_with("eight") {
+            '8'
+        } else if reduced_input.starts_with("nine") {
+            '9'
+        } else {
+            reduced_input.chars().next().unwrap()
+        };
 
-    while i < input.len() {
-        let mat_res = pattern.find(&input[i..]);
-        match mat_res {
-            Some(mat) => {
-                i += mat.start();
-                digits.push(transform_spelling_to_int(mat.as_str()));
-            }
-            None => (),
-        }
-        i += 1;
+        result.to_digit(10)
+    });
+
+    let first = digits.next().expect("Should be a number");
+
+    match digits.last() {
+        Some(last) => format!("{first}{last}"),
+        None => format!("{first}{first}"),
     }
-
-    format!("{}{}", digits[0], digits[digits.len() - 1])
-        .parse::<i32>()
-        .unwrap()
+    .parse::<i32>()
+    .expect("Should be a number")
 }
+
+// fn get_spelled_coordinates(input: &str) -> i32 {
+//     let pattern = Regex::new(r"\d|one|two|three|four|five|six|seven|eight|nine").unwrap();
+//     let mut i = 0;
+//     let mut digits = vec![];
+//
+//     while i < input.len() {
+//         let mat_res = pattern.find(&input[i..]);
+//         match mat_res {
+//             Some(mat) => {
+//                 i += mat.start();
+//                 digits.push(transform_spelling_to_int(mat.as_str()));
+//             }
+//             None => (),
+//         }
+//         i += 1;
+//     }
+//
+//     format!("{}{}", digits[0], digits[digits.len() - 1])
+//         .parse::<i32>()
+//         .unwrap()
+// }
 
 fn transform_spelling_to_int(spelling: &str) -> i32 {
     match spelling {

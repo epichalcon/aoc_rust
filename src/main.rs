@@ -1,16 +1,9 @@
 #![allow(dead_code)]
 mod utils;
-
-//mod day01;
-//mod day02;
-// mod day03;
-//mod day05;
-mod day06;
-//mod day12;
+//mod y2015;
+mod y2023;
 
 fn main() {
-    //day1::solve(&utils::io::read(1));
-    //day02::solve(&utils::io::read(2));
-    day06::solve(&utils::io::read(6));
-    //day12::solve();
+    // y2015::run();
+    y2023::run();
 }

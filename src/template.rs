@@ -10,8 +10,12 @@ pub fn solve(input: &str) {
     println!("\t time:{:?}", start_time.elapsed());
 }
 
-fn func1() {}
-fn func2() {}
+fn func1() -> bool {
+    true
+}
+fn func2() -> bool {
+    true
+}
 
 #[cfg(test)]
 mod tests {

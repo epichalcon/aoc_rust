@@ -1,3 +1,4 @@
+use rstest::rstest;
 use std::time::Instant;
 
 pub fn solve(input: &str) {
@@ -21,8 +22,9 @@ fn func2() -> bool {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_func1() {}
+    #[rstest]
+    #[case()]
+    fn test_get_spelled_coords_multiple_numbers(#[case] expected: i32, #[case] input: &str) {}
 
     #[test]
     fn test_func2() {}

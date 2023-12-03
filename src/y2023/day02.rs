@@ -31,7 +31,7 @@ pub fn solve(input: &str) {
 
     let start_time = Instant::now();
     println!(
-        "Second star: {}",
+        "Day 2 Second star: {}",
         input.lines().map(fewest_color_cubes).sum::<u32>()
     );
     println!("\t time:{:?}", start_time.elapsed());
@@ -55,11 +55,13 @@ fn game_is_possible(input: &str) -> Option<u32> {
     let correct = cube_set.all(|set| {
         set.split(", ").into_iter().all(|num_color| {
             let mut num_color_it = num_color.split(" ");
+
             let number = num_color_it
                 .next()
                 .unwrap()
                 .parse::<u8>()
                 .expect("should be a number");
+
             let color = num_color_it.next().unwrap();
 
             match color {
@@ -78,7 +80,7 @@ fn game_is_possible(input: &str) -> Option<u32> {
     }
 }
 fn fewest_color_cubes(input: &str) -> u32 {
-    let mut cube_set = input
+    let cube_set = input
         .split(": ")
         .last()
         .expect("Incorrect input format")
@@ -105,6 +107,7 @@ fn fewest_color_cubes(input: &str) -> u32 {
                         .unwrap()
                         .parse::<u32>()
                         .expect("should be a number");
+
                     let color = num_color_it.next().unwrap();
 
                     match color {
@@ -179,3 +182,44 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
         assert_eq!(expected, fewest_color_cubes(test_case))
     }
 }
+
+// con regex funciona pero es
+// fn game_is_possible(input: &str) -> Option<u32> {
+//     let mut game_iterator = input.split(": ");
+//
+//     let game_number = game_iterator
+//         .next()
+//         .unwrap()
+//         .replace("Game ", "")
+//         .parse::<u32>()
+//         .unwrap();
+//
+//     let pattern = regex::Regex::new(", |; ").unwrap();
+//
+//     let correct = pattern
+//         .split(game_iterator.next().expect("incorrect input format"))
+//         .all(|num_color| {
+//             let mut num_color_it = num_color.split(" ");
+//
+//             let number = num_color_it
+//                 .next()
+//                 .unwrap()
+//                 .parse::<u8>()
+//                 .expect("should be a number");
+//
+//             let color = num_color_it.next().unwrap();
+//
+//             match color {
+//                 "blue" => number <= MAX_BLUE,
+//                 "red" => number <= MAX_RED,
+//                 "green" => number <= MAX_GREEN,
+//                 _ => panic!("Not a valid color"),
+//             }
+//         });
+//
+//     if correct {
+//         Some(game_number)
+//     } else {
+//         None
+//     }
+// }

@@ -1,6 +1,6 @@
-use std::hash::Hash;
+use std::{collections::HashSet, hash::Hash};
 
-use num::{Integer, Num, Signed};
+use num::{CheckedAdd, CheckedSub, Integer, Num, Signed};
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Coordinates<T>
@@ -62,5 +62,78 @@ where
             x: self.x + num::one(),
             y: self.y,
         }
+    }
+}
+
+impl<T> Coordinates<T>
+where
+    T: Integer + CheckedAdd + CheckedSub + Copy,
+{
+    pub fn try_up(&self) -> Option<Self> {
+        self.y
+            .checked_add(&num::one())
+            .map(|y| Self { x: self.x, y })
+    }
+    pub fn try_down(&self) -> Option<Self> {
+        self.y
+            .checked_sub(&num::one())
+            .map(|y| Self { x: self.x, y })
+    }
+    pub fn try_right(&self) -> Option<Self> {
+        self.x
+            .checked_add(&num::one())
+            .map(|x| Self { x, y: self.y })
+    }
+    pub fn try_left(&self) -> Option<Self> {
+        self.x
+            .checked_sub(&num::one())
+            .map(|x| Self { x, y: self.y })
+    }
+}
+
+impl<T> Coordinates<T>
+where
+    T: Integer + Hash + CheckedAdd + CheckedSub + Copy,
+{
+    pub fn orthogonal_neighbors(&self) -> HashSet<Self> {
+        let mut neighbors = HashSet::new();
+        if let Some(up) = self.try_up() {
+            neighbors.insert(up);
+        }
+        if let Some(down) = self.try_down() {
+            neighbors.insert(down);
+        }
+        if let Some(left) = self.try_left() {
+            neighbors.insert(left);
+        }
+        if let Some(right) = self.try_right() {
+            neighbors.insert(right);
+        }
+
+        neighbors
+    }
+
+    pub fn diagonal_neighbors(&self) -> HashSet<Self> {
+        let mut neighbors = HashSet::new();
+        if let Some(up_left) = self.try_up().and_then(|up| up.try_left()) {
+            neighbors.insert(up_left);
+        }
+        if let Some(down_left) = self.try_down().and_then(|down| down.try_left()) {
+            neighbors.insert(down_left);
+        }
+        if let Some(up_right) = self.try_up().and_then(|up| up.try_right()) {
+            neighbors.insert(up_right);
+        }
+        if let Some(down_right) = self.try_down().and_then(|down| down.try_right()) {
+            neighbors.insert(down_right);
+        }
+
+        neighbors
+    }
+
+    pub fn all_neighbors(&self) -> HashSet<Self> {
+        let mut neighbors = self.diagonal_neighbors();
+        neighbors.extend(self.orthogonal_neighbors());
+        neighbors
     }
 }

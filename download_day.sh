@@ -48,7 +48,10 @@ mkdir -p "${OUTPUT_DIR}"
 
 # ------------------------------------------------------------------
 # curl command
-INT_DAY=$(($DAY + 0))
+
+
+INT_DAY=$((10#$DAY))
+echo "cargando día: ${INT_DAY}"
 
 CMD="curl --ssl-no-revoke"
 CMD=${CMD}" -b session=${SESSION_TOKEN}"

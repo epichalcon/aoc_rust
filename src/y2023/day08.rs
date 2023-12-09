@@ -61,20 +61,30 @@ fn traverse_map(input: &str) -> usize {
 
     let mut actual_node = nodes.get("AAA").unwrap();
 
-    let mut i = 0;
+    let Some(index) = instructions
+        .chars()
+        .cycle()
+        .enumerate()
+        .find_map(|(index, instruction)| {
+            let path_to_take = instruction;
 
-    while actual_node.name != "ZZZ" {
-        let path_to_take = instructions.chars().nth(i % instructions.len()).unwrap();
+            let next_node = match path_to_take {
+                'R' => nodes.get(&actual_node.right).unwrap(),
+                'L' => nodes.get(&actual_node.left).unwrap(),
+                _ => panic!("input malformed"),
+            };
 
-        match path_to_take {
-            'R' => actual_node = nodes.get(&actual_node.right).unwrap(),
-            'L' => actual_node = nodes.get(&actual_node.left).unwrap(),
-            _ => panic!("input malformed"),
-        };
-        i += 1;
-    }
-
-    i
+            if next_node.name == "ZZZ" {
+                Some(index + 1)
+            } else {
+                actual_node = next_node;
+                None
+            }
+        })
+    else {
+        panic!("")
+    };
+    index
 }
 
 fn get_starting_nodes(nodes: &Vec<Node>) -> Vec<String> {
@@ -85,12 +95,9 @@ fn get_starting_nodes(nodes: &Vec<Node>) -> Vec<String> {
         .collect()
 }
 
-fn is_ending_node(node: &String) -> bool {
-    node.ends_with('Z')
-}
-
 fn func2(input: &str) -> usize {
     let (_, (instructions, nodes_vec)) = parse_input(input).expect("Input malformed");
+
     let nodes = nodes_vec.iter().fold(BTreeMap::new(), |mut acc, node| {
         acc.insert(node.name.clone(), node);
         acc
@@ -101,18 +108,32 @@ fn func2(input: &str) -> usize {
     let mut end_frequences = vec![];
 
     for mut node in starting_nodes.clone() {
-        let mut i = 0;
-        while !node.ends_with('Z') {
-            let path_to_take = instructions.chars().nth(i % instructions.len()).unwrap();
+        let Some(index) =
+            instructions
+                .chars()
+                .cycle()
+                .enumerate()
+                .find_map(|(index, instruction)| {
+                    let path_to_take = instruction;
 
-            match path_to_take {
-                'R' => node = nodes.get(&node).unwrap().right.clone(),
-                'L' => node = nodes.get(&node).unwrap().left.clone(),
-                _ => panic!("input malformed"),
-            };
-            i += 1;
-        }
-        end_frequences.push(i);
+                    let next_node = match path_to_take {
+                        'R' => nodes.get(&node).unwrap().right.clone(),
+                        'L' => nodes.get(&node).unwrap().left.clone(),
+                        _ => panic!("input malformed"),
+                    };
+
+                    if next_node.ends_with('Z') {
+                        Some(index + 1)
+                    } else {
+                        node = next_node;
+                        None
+                    }
+                })
+        else {
+            panic!("")
+        };
+
+        end_frequences.push(index);
     }
     end_frequences
         .iter()
@@ -121,6 +142,8 @@ fn func2(input: &str) -> usize {
 
 #[cfg(test)]
 mod tests {
+    use crate::utils::io;
+
     use super::*;
 
     // #[rstest]
@@ -175,5 +198,13 @@ CCZ = (XXX, CCA)
 ";
         let result = 30;
         assert_eq!(result, func2(input));
+    }
+
+    #[test]
+    fn test_original() {
+        let input = &io::read(2023, 8);
+
+        assert_eq!(14429, traverse_map(input));
+        assert_eq!(10921547990923, func2(input));
     }
 }

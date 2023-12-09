@@ -6,7 +6,7 @@ pub fn get_number_from_line<T: std::str::FromStr>(input: &str) -> Vec<T>
 where
     <T as FromStr>::Err: Debug,
 {
-    Regex::new(r"\d+")
+    Regex::new(r"-?\d+")
         .unwrap()
         .find_iter(input.as_bytes())
         .map(|item| std::str::from_utf8(item.as_bytes()).unwrap())

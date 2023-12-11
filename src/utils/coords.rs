@@ -2,6 +2,8 @@ use std::{collections::HashSet, hash::Hash};
 
 use num::{CheckedAdd, CheckedSub, Integer, Num, Signed};
 
+use super::direction::Direction;
+
 #[derive(PartialEq, Eq, Hash, Clone, Copy, Debug)]
 pub struct Coordinates<T>
 where
@@ -39,14 +41,14 @@ where
     pub fn up(&self) -> Self {
         Self {
             x: self.x,
-            y: self.y + num::one(),
+            y: self.y - num::one(),
         }
     }
 
     pub fn down(&self) -> Self {
         Self {
             x: self.x,
-            y: self.y - num::one(),
+            y: self.y + num::one(),
         }
     }
 
@@ -136,4 +138,50 @@ where
         neighbors.extend(self.orthogonal_neighbors());
         neighbors
     }
+}
+
+impl<T> Coordinates<T>
+where
+    T: Integer + Signed + Copy,
+{
+    pub fn step(&self, direction: Direction) -> Self {
+        match direction {
+            Direction::Up => self.up(),
+            Direction::Down => self.down(),
+            Direction::Left => self.left(),
+            Direction::Right => self.right(),
+        }
+    }
+}
+
+impl<T> Coordinates<T>
+where
+    T: Integer + Signed + Copy,
+{
+    pub fn orthogonal_distance(&self, other: Self) -> T {
+        let x = if self.x <= other.x {
+            num::abs_sub(other.x, self.x)
+        } else {
+            num::abs_sub(self.x, other.x)
+        };
+        let y = if self.y <= other.y {
+            num::abs_sub(other.y, self.y)
+        } else {
+            num::abs_sub(self.y, other.y)
+        };
+        x + y
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // #[test]
+    // fn orthogonal_distance() {
+    //     let coord1: Coordinates<i32> = Coordinates::new(1, 5);
+    //     let coord2: Coordinates<i32> = Coordinates::new(4, 9);
+    //
+    //     assert_eq!(7, coord1.orthogonal_distance(coord2));
+    // }
 }

@@ -68,28 +68,6 @@ fn get_spelled_coordinates(input: &str) -> i32 {
     .expect("Should be a number")
 }
 
-// fn get_spelled_coordinates(input: &str) -> i32 {
-//     let pattern = Regex::new(r"\d|one|two|three|four|five|six|seven|eight|nine").unwrap();
-//     let mut i = 0;
-//     let mut digits = vec![];
-//
-//     while i < input.len() {
-//         let mat_res = pattern.find(&input[i..]);
-//         match mat_res {
-//             Some(mat) => {
-//                 i += mat.start();
-//                 digits.push(transform_spelling_to_int(mat.as_str()));
-//             }
-//             None => (),
-//         }
-//         i += 1;
-//     }
-//
-//     format!("{}{}", digits[0], digits[digits.len() - 1])
-//         .parse::<i32>()
-//         .unwrap()
-// }
-
 fn transform_spelling_to_int(spelling: &str) -> i32 {
     match spelling {
         "one" => 1,

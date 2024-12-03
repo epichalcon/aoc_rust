@@ -1,4 +1,8 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{
+    collections::HashSet,
+    hash::Hash,
+    ops::{Add, Sub},
+};
 
 use num::{CheckedAdd, CheckedSub, Integer, Num, Signed};
 
@@ -45,10 +49,22 @@ where
         }
     }
 
+    fn up_by(&self, steps: T) -> Self {
+        Self {
+            x: self.x,
+            y: self.y - steps,
+        }
+    }
     pub fn down(&self) -> Self {
         Self {
             x: self.x,
             y: self.y + num::one(),
+        }
+    }
+    fn down_by(&self, steps: T) -> Self {
+        Self {
+            x: self.x,
+            y: self.y + steps,
         }
     }
 
@@ -58,10 +74,22 @@ where
             y: self.y,
         }
     }
+    fn left_by(&self, steps: T) -> Self {
+        Self {
+            x: self.x - steps,
+            y: self.y,
+        }
+    }
 
     pub fn right(&self) -> Self {
         Self {
             x: self.x + num::one(),
+            y: self.y,
+        }
+    }
+    fn right_by(&self, steps: T) -> Self {
+        Self {
+            x: self.x + steps,
             y: self.y,
         }
     }
@@ -152,6 +180,15 @@ where
             Direction::Right => self.right(),
         }
     }
+
+    pub fn step_by(&self, direction: Direction, steps: T) -> Self {
+        match direction {
+            Direction::Up => self.up_by(steps),
+            Direction::Down => self.down_by(steps),
+            Direction::Left => self.left_by(steps),
+            Direction::Right => self.right_by(steps),
+        }
+    }
 }
 
 impl<T> Coordinates<T>
@@ -170,6 +207,34 @@ where
             num::abs_sub(self.y, other.y)
         };
         x + y
+    }
+}
+
+impl<T> Sub for Coordinates<T>
+where
+    T: Integer,
+{
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl<T> Add for Coordinates<T>
+where
+    T: Integer,
+{
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Self {
+            x: self.x + rhs.x,
+            y: self.y + rhs.y,
+        }
     }
 }
 

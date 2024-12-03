@@ -141,7 +141,7 @@ impl PartialOrd for Bid {
 }
 
 fn compute_hand_type(cards: &Vec<Card>, altered: &bool) -> HandType {
-    let binding = cards.into_iter().counts_by(|card| card.value);
+    let binding = cards.iter().counts_by(|card| card.value);
 
     if binding.len() == 1 {
         return HandType::FiveOfAKind;

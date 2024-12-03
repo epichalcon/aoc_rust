@@ -28,3 +28,12 @@ pub fn traspose_string_vec(input: Vec<String>) -> String {
 
     transposed.join("\n")
 }
+
+pub fn print_matrix(matrix: Vec<Vec<char>>) {
+    for row in matrix.iter() {
+        for ch in row.iter() {
+            print!("{ch}");
+        }
+        println!("");
+    }
+}

@@ -1,14 +1,13 @@
-use num::abs;
 use rstest::rstest;
-use std::{iter::zip, time::Instant, u32};
+use std::{collections::HashMap, hash::Hash, iter::zip, time::Instant, u32};
 
 pub fn solve(input: &str) {
     let start_time = Instant::now();
-    println!("First star: {}", func1(input));
+    println!("First star: {}", distances(input));
     println!("\t time:{:?}", start_time.elapsed());
 
     let start_time = Instant::now();
-    println!("Second star: {}", func2(input));
+    println!("Second star: {}", similarity(input));
     println!("\t time:{:?}", start_time.elapsed());
 }
 
@@ -21,7 +20,7 @@ fn difference(a:u32, b:u32) -> u32 {
     }
 }
 
-fn func1(input: &str) -> u32 {
+fn distances(input: &str) -> u32 {
     let mut parsed_input: Vec<Vec<u32>> = input
         .lines()
         .map(|line| {
@@ -41,15 +40,36 @@ fn func1(input: &str) -> u32 {
     parsed_input[0].sort();
     parsed_input[1].sort();
 
-    let res = zip(
+    zip(
         parsed_input[0].clone(),
         parsed_input[1].clone())
         .map(|(a, b)| difference(a,b))
-        .sum();
-    res
+        .sum()
 }
-fn func2(input: &str) -> bool {
-    true
+fn similarity(input: &str) -> u32 {
+    let mut parsed_input: Vec<Vec<u32>> = input
+        .lines()
+        .map(|line| {
+            let splitted : Vec<u32> = line
+                .split_whitespace()
+                .filter_map(|s| s.parse().ok())
+                .collect();
+            splitted
+        })
+        .fold(vec![Vec::new(), Vec::new()], |mut acc, splitted| {
+            if !splitted.is_empty(){
+                acc[0].push(splitted[0]);
+                acc[1].push(splitted[1]);
+            }
+            acc}
+        );
+
+    let mut counts : HashMap<u32, u32> = HashMap::new();
+    for &number in &parsed_input[1] {
+        *counts.entry(number).or_insert(0) += 1;
+    }
+
+    parsed_input[0].iter().fold(0, |acc, num| counts.get(num).unwrap_or(&0) * num + acc)
 }
 
 #[cfg(test)]
@@ -65,9 +85,18 @@ mod tests {
 3   3")]
 
     fn test_func1(#[case] expected: u32, #[case] input: &str) {
-        assert_eq!(expected, func1(input));
+        assert_eq!(expected, distances(input));
     }
 
-    #[test]
-    fn test_func2() {}
+    #[rstest]
+    #[case(31, "3   4
+4   3
+2   5
+1   3
+3   9
+3   3")]
+
+    fn test_func2(#[case] expected: u32, #[case] input: &str) {
+        assert_eq!(expected, similarity(input));
+    }
 }

@@ -119,6 +119,16 @@ where
             .checked_sub(&num::one())
             .map(|x| Self { x, y: self.y })
     }
+
+
+    pub fn try_step(&self, direction: Direction) -> Option<Self> {
+        match direction {
+            Direction::Up => self.try_up(),
+            Direction::Down => self.try_down(),
+            Direction::Left => self.try_left(),
+            Direction::Right => self.try_right(),
+        }
+    }
 }
 
 impl<T> Coordinates<T>
@@ -170,7 +180,7 @@ where
 
 impl<T> Coordinates<T>
 where
-    T: Integer + Signed + Copy,
+    T: Integer + Signed + Copy + CheckedAdd + CheckedSub ,
 {
     pub fn step(&self, direction: Direction) -> Self {
         match direction {

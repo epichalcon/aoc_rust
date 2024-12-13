@@ -1,4 +1,3 @@
-use rstest::rstest;
 use std::time::Instant;
 
 pub fn solve(input: &str) {
@@ -21,6 +20,7 @@ fn func2(input: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rstest::rstest;
 
     #[rstest]
     #[case()]

@@ -10,9 +10,12 @@ pub fn solve(input: &str) {
     println!("\t time:{:?}", start_time.elapsed());
 }
 
+#[tracing::instrument(skip(input))]
 fn func1(input: &str) -> bool {
     todo!()
 }
+
+#[tracing::instrument(skip(input))]
 fn func2(input: &str) -> bool {
     todo!()
 }

@@ -68,6 +68,7 @@ dependencies = [
  "itertools",
  "nom",
  "num",
+ "rangemap",
  "regex",
  "rstest",
  "test-log",
@@ -405,6 +406,12 @@ checksum = "5267fca4496028628a95160fc423a33e8b2e6af8a5302579e322e4b520293cae"
 dependencies = [
  "proc-macro2",
 ]
+
+[[package]]
+name = "rangemap"
+version = "1.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acbbbbea733ec66275512d0b9694f34102e7d5406fdbe2ad8d21b28dce92887c"
 
 [[package]]
 name = "regex"

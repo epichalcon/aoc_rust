@@ -1,9 +1,14 @@
-use std::{time::Instant, vec};
+use std::{ops::RangeInclusive, time::Instant};
 
+use itertools::Itertools;
 use nom::{
-    bytes::complete::tag, character::complete::digit1, combinator::map_res, multi::separated_list1,
-    sequence::separated_pair, IResult,
+    bytes::complete::{tag},
+    character::complete::{self, newline},
+    multi::separated_list1,
+    sequence::separated_pair,
+    IResult, Parser,
 };
+use rangemap::RangeInclusiveSet;
 
 pub fn solve(input: &str) {
     let start_time = Instant::now();
@@ -15,83 +20,31 @@ pub fn solve(input: &str) {
     println!("\t time:{:?}", start_time.elapsed());
 }
 
-#[derive(Debug)]
-struct FreshIngredients {
-    ranges: Vec<(u64, u64)>,
-}
-
-impl FreshIngredients {
-    fn new() -> Self {
-        Self { ranges: vec![] }
-    }
-
-    fn add_range(mut self, n_range: (u64, u64)) -> Self {
-        self.ranges.push(n_range);
-        self
-    }
-
-    fn contains(&self, ingredient: &u64) -> bool {
-        self.ranges
-            .iter()
-            .any(|range| range.0 <= *ingredient && *ingredient <= range.1)
-    }
-
-    fn merge(&mut self) {
-        if self.ranges.is_empty() {
-            return;
-        };
-
-        self.ranges.sort_by(|a, b| a.0.cmp(&b.0));
-
-        let mut merged = vec![self.ranges[0]];
-
-        for current in &mut self.ranges[1..] {
-            let last = *merged.last().unwrap();
-
-            if current.0 <= last.1 {
-                merged.pop();
-                merged.push((last.0, u64::max(last.1, current.1)));
-            } else {
-                merged.push(*current);
-            }
-        }
-
-        self.ranges = merged.to_vec();
-    }
-
-    fn len(&self) -> u64 {
-        self.ranges
-            .iter()
-            .fold(0, |acc, range| range.1 - range.0 + 1 + acc)
-    }
-}
-
-fn range_parser(input: &str) -> IResult<&str, Vec<(u64, u64)>> {
+fn range_parser(input: &str) -> IResult<&str, Vec<RangeInclusive<u64>>> {
     separated_list1(
-        tag("\n"),
+        newline,
         separated_pair(
-            map_res(digit1, |s: &str| s.parse::<u64>()),
+            complete::u64,
             tag("-"),
-            map_res(digit1, |s: &str| s.parse::<u64>()),
-        ),
+            complete::u64,
+        )
+        .map(|(a, b)| a..=b),
     )(input)
 }
 
 fn ingredient_parser(input: &str) -> IResult<&str, Vec<u64>> {
-    separated_list1(tag("\n"), map_res(digit1, |s: &str| s.parse::<u64>()))(input)
+    separated_list1(tag("\n"), complete::u64)(input)
 }
 
-fn parse(input: &str) -> IResult<&str, (Vec<(u64, u64)>, Vec<u64>)> {
-    separated_pair(range_parser, tag("\n\n"), ingredient_parser)(input)
+fn parse(input: &str) -> IResult<&str, (Vec<RangeInclusive<u64>>, Vec<u64>)> {
+    separated_pair(range_parser, newline.and(newline), ingredient_parser)(input)
 }
 
 #[tracing::instrument(skip(input))]
 fn func1(input: &str) -> u64 {
     let (_, (ranges, ingredients)) = parse(input).unwrap();
 
-    let fresh_ingredients: FreshIngredients = ranges
-        .iter()
-        .fold(FreshIngredients::new(), |acc, range| acc.add_range(*range));
+    let fresh_ingredients: RangeInclusiveSet<u64> = ranges.iter().cloned().collect();
 
     ingredients
         .iter()
@@ -103,12 +56,11 @@ fn func1(input: &str) -> u64 {
 fn func2(input: &str) -> u64 {
     let (_, ranges) = range_parser(input).unwrap();
 
-    let mut fresh_ingredients: FreshIngredients = ranges
-        .iter()
-        .fold(FreshIngredients::new(), |acc, range| acc.add_range(*range));
+    let fresh_ingredients: RangeInclusiveSet<u64> = ranges.iter().cloned().collect();
 
-    fresh_ingredients.merge();
-    fresh_ingredients.len()
+    fresh_ingredients
+        .iter()
+        .fold(0, |acc, range| range.try_len().unwrap() as u64 + acc)
 }
 
 #[cfg(test)]

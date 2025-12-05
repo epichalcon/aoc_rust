@@ -11,12 +11,12 @@ pub fn solve(input: &str) {
 }
 
 #[tracing::instrument(skip(input))]
-fn func1(input: &str) -> bool {
+fn func1(input: &str) -> u32 {
     todo!()
 }
 
 #[tracing::instrument(skip(input))]
-fn func2(input: &str) -> bool {
+fn func2(input: &str) -> u32 {
     todo!()
 }
 
@@ -24,6 +24,7 @@ fn func2(input: &str) -> bool {
 mod tests {
     use super::*;
     use rstest::rstest;
+    use test_log::test;
 
     #[rstest]
     #[case()]

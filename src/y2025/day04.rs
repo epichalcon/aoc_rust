@@ -8,7 +8,7 @@ use nom::{
     IResult,
 };
 
-use crate::utils::coords::Coordinates;
+use crate::utils::{coords::Coordinates, io::animate};
 
 pub fn solve(input: &str) {
     let start_time = Instant::now();
@@ -28,8 +28,8 @@ enum Cell {
 impl std::fmt::Display for Cell {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Cell::Paper => write!(f, "@"), // or "x", "█", etc.
-            Cell::Empty => write!(f, "."),
+            Cell::Paper => write!(f, "█"), // or "x", "█", etc.
+            Cell::Empty => write!(f, " "),
         }
     }
 }
@@ -193,6 +193,8 @@ fn func2(input: &str) -> u32 {
                 })
                 .collect(),
         );
+
+        animate(&map.to_string());
 
         if new_map == map {
             break;

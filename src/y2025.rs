@@ -1,6 +1,6 @@
-mod day04;
+mod day05;
 use crate::utils::io;
 
 pub fn run() {
-    day04::solve(&io::read(2025,4));
+    day05::solve(&io::read(2025,5));
 }

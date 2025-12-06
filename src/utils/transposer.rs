@@ -29,6 +29,18 @@ pub fn traspose_string_vec(input: Vec<String>) -> String {
     transposed.join("\n")
 }
 
+pub fn traspose_num_vec<T: std::marker::Copy + Default>(input: Vec<Vec<T>>) -> Vec<Vec<T>> {
+    let max_len = input.iter().map(|row| row.len()).max().unwrap_or(0);
+    (0..max_len)
+        .map(|col| {
+           input 
+                .iter()
+                .map(|row| row.get(col).copied().unwrap_or_default())
+                .collect()
+        })
+        .collect()
+}
+
 pub fn print_matrix(matrix: Vec<Vec<char>>) {
     for row in matrix.iter() {
         for ch in row.iter() {

@@ -26,10 +26,25 @@ mod tests {
     use rstest::rstest;
     use test_log::test;
 
+    /*
     #[rstest]
     #[case()]
     fn test_func1(#[case] expected: u32, #[case] input: &str) {}
+    */
 
     #[test]
-    fn test_func2() {}
+    fn test_func1() {
+        let input = "";
+        let expected = 0;
+
+        assert_eq!(func1(input), expected);
+    }
+
+    #[test]
+    fn test_func2() {
+        let input = "";
+        let expected = 0;
+
+        assert_eq!(func2(input), expected);
+    }
 }

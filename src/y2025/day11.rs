@@ -6,9 +6,9 @@ use nom::{
     bytes::complete::tag,
     character::{
         self,
-        complete::{alpha1, newline},
+        complete::{alpha1, newline, space1},
     },
-    multi::{many1, separated_list1},
+    multi::separated_list1,
     sequence::separated_pair,
     IResult,
 };
@@ -24,28 +24,13 @@ pub fn solve(input: &str) {
     println!("\t time:{:?}", start_time.elapsed());
 }
 
-fn parse_name(input: &str) -> IResult<&str, String> {
-    let (input, name) = many1(alpha1)(input)?;
-    Ok((input, name.iter().cloned().collect::<String>()))
+fn parse_line(input: &str) -> IResult<&str, (&str, Vec<&str>)> {
+    separated_pair(alpha1, tag(": "), separated_list1(space1, alpha1))(input)
 }
 
-fn parse_line(input: &str) -> IResult<&str, (String, Vec<String>)> {
-    separated_pair(
-        parse_name,
-        tag(": "),
-        separated_list1(character::complete::char(' '), parse_name),
-    )(input)
-}
-
-fn parse(input: &str) -> IResult<&str, HashMap<String, Vec<String>>> {
+fn parse(input: &str) -> IResult<&str, HashMap<&str, Vec<&str>>> {
     let (input, lines) = separated_list1(newline, parse_line)(input)?;
-    Ok((
-        input,
-        lines
-            .iter()
-            .cloned()
-            .collect::<HashMap<String, Vec<String>>>(),
-    ))
+    Ok((input, lines.into_iter().collect()))
 }
 
 #[tracing::instrument(skip(input))]
@@ -53,58 +38,59 @@ fn func1(input: &str) -> usize {
     let (_, outputs) = parse(input).expect("unable to parse");
 
     count_paths(
-        "you".to_string(),
+        "you",
         |node| {
             outputs
-                .get(node.as_str())
+                .get(node)
                 .expect("node should be in map")
                 .iter()
                 .cloned()
         },
-        |n| n == &"out".to_string(),
+        |n| n == &"out",
     )
 }
 
 #[tracing::instrument(skip(input))]
 fn func2(input: &str) -> usize {
-    let (_, mut outputs) = parse(input).expect("unable to parse");
+    let (_, outputs) = parse(input).expect("unable to parse");
 
-    outputs.insert("out".to_string(), vec![]);
+
+    let empty_vec = vec![];
 
     let svr_to_fft = count_paths(
-        "svr".to_string(),
+        "svr",
         |node| {
             outputs
-                .get(node.as_str())
-                .expect("node should be in map")
+                .get(node)
+                .unwrap_or(&empty_vec)
                 .iter()
-                .cloned()
+                .copied()
         },
-        |n| n == &"fft".to_string(),
+        |n| n == &"fft",
     );
 
     let fft_to_dac = count_paths(
-        "fft".to_string(),
+        "fft",
         |node| {
             outputs
-                .get(node.as_str())
-                .expect("node should be in map")
+                .get(node)
+                .unwrap_or(&empty_vec)
                 .iter()
-                .cloned()
+                .copied()
         },
-        |n| n == &"dac".to_string(),
+        |n| n == &"dac",
     );
 
     let dac_to_out = count_paths(
-        "dac".to_string(),
+        "dac",
         |node| {
             outputs
-                .get(node.as_str())
-                .expect("node should be in map")
+                .get(node)
+                .unwrap_or(&empty_vec)
                 .iter()
-                .cloned()
+                .copied()
         },
-        |n| n == &"out".to_string(),
+        |n| n == &"out",
     );
 
     svr_to_fft * fft_to_dac * dac_to_out
